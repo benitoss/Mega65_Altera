@@ -2,7 +2,7 @@
  
 This core is an Altera FPGA version based on [Mega65 core](https://github.com/MEGA65/mega65-core) from Xilinx FPGA Artix7 200 
 
-Thanks to [Yo_me](https://github.com/naeloob) for solving the graphic glitches and the support of [Paul Gardner-Stephen](HTTP://mega65.org) and [RetroWiki DevTeam](https://www.retrowiki.es/).
+Thanks to [Yo_me](https://github.com/naeloob) for solving the graphic glitches, the support of [Paul Gardner-Stephen](HTTP://mega65.org) and [RetroWiki DevTeam](https://www.retrowiki.es/).
 
 Version for:
    - Poseidon board + EP4CGX150 QMTECH
