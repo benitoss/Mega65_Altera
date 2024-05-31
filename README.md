@@ -5,14 +5,13 @@ This core is an Altera FPGA version based on [Mega65 core](https://github.com/ME
 Thanks to [Yo_me](https://github.com/naeloob) for solving the graphic glitches and the support of [Paul Gardner-Stephen](HTTP://mega65.org) and [RetroWiki DevTeam](https://www.retrowiki.es/).
 
 Version for:
-   Poseidon board + EP4CGX150 QMTECH
-   NeptUNO+ board
+   - Poseidon board + EP4CGX150 QMTECH
+   - NeptUNO+ board
 
-Get your Poseidon board --> [here](https://manuferhi.com/p/poseidon-motherboard)
-
-EP4CGX150 QMTECH ==> [here](https://www.aliexpress.us/item/3256803879412530.html)
-
-And your NeptUNO+ boards --> [here](https://antoniovillena.com/product/neptuno-plus/)
+Get:
+- your Poseidon board --> [here](https://manuferhi.com/p/poseidon-motherboard)
+- EP4CGX150 QMTECH --> [here](https://www.aliexpress.us/item/3256803879412530.html)
+- And your NeptUNO+ boards --> [here](https://antoniovillena.com/product/neptuno-plus/)
 
 
 Refer to "[./docs/index.md](./docs/index.md)" for the index file of the main DOC documentation.  
@@ -36,3 +35,5 @@ renamed to MEGA65.ROM, is 128k in size
 
 If you do not have such a file, the MEGA65 contains the free and open-source
 OpenROM alternative.
+
+------------
