@@ -1,0 +1,505 @@
+# -------------------------------------------------------------------------- #                                                                           
+#                                                                           
+# Copyright (C) 1991-2014 Altera Corporation                                                                           
+# Your use of Altera Corporation's design tools, logic functions                                                                            
+# and other software and tools, and its AMPP partner logic                                                                            
+# functions, and any output files from any of the foregoing                                                                            
+# (including device programming or simulation files), and any                                                                            
+# associated documentation or information are expressly subject                                                                            
+# to the terms and conditions of the Altera Program License                                                                            
+# Subscription Agreement, Altera MegaCore Function License                                                                            
+# Agreement, or other applicable license agreement, including,                                                                            
+# without limitation, that your use is for the sole purpose of                                                                            
+# programming logic devices manufactured by Altera and sold by                                                                            
+# Altera or its authorized distributors.  Please refer to the                                                                            
+# applicable agreement for further details.                                                                           
+#                                                                           
+# -------------------------------------------------------------------------- #                                                                           
+#                                                                           
+# Quartus II 64-Bit                                                                           
+# Version 13.1.4 Build 182 03/12/2014 SJ Web Edition                                                                           
+# Date created = 08:30:59  December 07, 2015                                                                           
+#                                                                           
+# -------------------------------------------------------------------------- #                                                                           
+# Project-Wide Assignments                                                                           
+# ========================                                                                           
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 13.1
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:40:24  MAY 17, 2014"
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.0 Lite Edition"
+set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
+set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
+set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name FLOW_ENABLE_IO_ASSIGNMENT_ANALYSIS ON
+# Pin & Location Assignments                                                                           
+# ==========================                                                                           
+
+set_location_assignment PIN_B14 -to CLOCK_27
+
+# ========VIDEO===========  
+set_location_assignment PIN_AE19 -to VGA_R[7]
+set_location_assignment PIN_AD19 -to VGA_R[6]
+set_location_assignment PIN_AC19 -to VGA_R[5]
+set_location_assignment PIN_AF18 -to VGA_R[4]
+set_location_assignment PIN_AE18 -to VGA_R[3]
+set_location_assignment PIN_AC18 -to VGA_R[2]
+set_location_assignment PIN_AD16 -to VGA_R[1]
+set_location_assignment PIN_AE15 -to VGA_R[0]
+set_location_assignment PIN_AF24 -to VGA_B[7]
+set_location_assignment PIN_AC21 -to VGA_B[6]
+set_location_assignment PIN_AE23 -to VGA_B[5]
+set_location_assignment PIN_AE22 -to VGA_B[4]
+set_location_assignment PIN_AD20 -to VGA_B[3]
+set_location_assignment PIN_AF20 -to VGA_B[2]
+set_location_assignment PIN_AF15 -to VGA_B[1]
+set_location_assignment PIN_AC16 -to VGA_B[0]
+set_location_assignment PIN_AD21 -to VGA_G[7]
+set_location_assignment PIN_AF23 -to VGA_G[6]
+set_location_assignment PIN_AF22 -to VGA_G[5]
+set_location_assignment PIN_AE21 -to VGA_G[4]
+set_location_assignment PIN_AF21 -to VGA_G[3]
+set_location_assignment PIN_AF19 -to VGA_G[2]
+set_location_assignment PIN_AD17 -to VGA_G[1]
+set_location_assignment PIN_AF16 -to VGA_G[0]
+set_location_assignment PIN_AD18 -to VGA_VS
+set_location_assignment PIN_AE17 -to VGA_HS
+
+# =========== TECLADO Y RATON ============
+
+set_location_assignment PIN_A2 -to PS2_MCLK
+set_location_assignment PIN_B1 -to PS2_MDAT
+set_location_assignment PIN_C1 -to PS2_CLK
+set_location_assignment PIN_D1 -to PS2_DAT
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PS2_CLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PS2_DAT
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PS2_MCLK
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to PS2_MDAT
+
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_CLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_DAT
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MCLK
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to PS2_MDAT
+
+# ==========MCU=============  
+
+#set_location_assignment PIN_AC14 -to SPI_DO
+#set_location_assignment PIN_AF12 -to SPI_DI
+#set_location_assignment PIN_AF11 -to SPI_SCK
+#set_location_assignment PIN_AC10 -to SPI_SS2
+#set_location_assignment PIN_AD10 -to SPI_SS3
+#set_location_assignment PIN_AE9 -to SPI_SS4
+#set_location_assignment PIN_AD14 -to CONF_DATA0
+
+set_location_assignment PIN_AD4 -to JOY_CLK
+set_location_assignment PIN_AC4 -to JOY_LOAD
+set_location_assignment PIN_AD3 -to JOY_DATA
+
+#set_location_assignment PIN_AF4 -to JOY_XCLK
+#set_location_assignment PIN_AE3 -to JOY_XLOAD
+#set_location_assignment PIN_AF5 -to JOY_XDATA
+
+# === SDCard DIRECTA ===
+set_location_assignment PIN_B4 -to SD_CLK
+set_location_assignment PIN_C5 -to SD_CS_n
+set_location_assignment PIN_A4 -to SD_MISO
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_MISO
+set_location_assignment PIN_C4 -to SD_MOSI
+
+
+# ==========DRAM=============
+set_location_assignment PIN_L25 -to SDRAM_A[0]
+set_location_assignment PIN_L26 -to SDRAM_A[1]
+set_location_assignment PIN_M25 -to SDRAM_A[2]
+set_location_assignment PIN_M26 -to SDRAM_A[3]
+set_location_assignment PIN_N22 -to SDRAM_A[4]
+set_location_assignment PIN_N23 -to SDRAM_A[5]
+set_location_assignment PIN_N24 -to SDRAM_A[6]
+set_location_assignment PIN_M22 -to SDRAM_A[7]
+set_location_assignment PIN_M24 -to SDRAM_A[8]
+set_location_assignment PIN_L23 -to SDRAM_A[9]
+set_location_assignment PIN_K26 -to SDRAM_A[10]
+set_location_assignment PIN_L24 -to SDRAM_A[11]
+set_location_assignment PIN_K23 -to SDRAM_A[12]
+set_location_assignment PIN_B25 -to SDRAM_DQ[0]
+set_location_assignment PIN_B26 -to SDRAM_DQ[1]
+set_location_assignment PIN_C25 -to SDRAM_DQ[2]
+set_location_assignment PIN_C26 -to SDRAM_DQ[3]
+set_location_assignment PIN_D25 -to SDRAM_DQ[4]
+set_location_assignment PIN_D26 -to SDRAM_DQ[5]
+set_location_assignment PIN_E25 -to SDRAM_DQ[6]
+set_location_assignment PIN_E26 -to SDRAM_DQ[7]
+set_location_assignment PIN_H23 -to SDRAM_DQ[8]
+set_location_assignment PIN_G24 -to SDRAM_DQ[9]
+set_location_assignment PIN_G22 -to SDRAM_DQ[10]
+set_location_assignment PIN_F24 -to SDRAM_DQ[11]
+set_location_assignment PIN_F23 -to SDRAM_DQ[12]
+set_location_assignment PIN_E24 -to SDRAM_DQ[13]
+set_location_assignment PIN_D24 -to SDRAM_DQ[14]
+set_location_assignment PIN_C24 -to SDRAM_DQ[15]
+set_location_assignment PIN_J25 -to SDRAM_BA[0]
+set_location_assignment PIN_J26 -to SDRAM_BA[1]
+set_location_assignment PIN_H24 -to SDRAM_DQMH
+set_location_assignment PIN_F26 -to SDRAM_DQML
+set_location_assignment PIN_H25 -to SDRAM_nRAS
+set_location_assignment PIN_G26 -to SDRAM_nCAS
+set_location_assignment PIN_G25 -to SDRAM_nWE
+set_location_assignment PIN_H26 -to SDRAM_nCS
+set_location_assignment PIN_K24 -to SDRAM_CKE
+set_location_assignment PIN_E22 -to SDRAM_CLK
+
+# ==========AUDIO============  
+
+set_location_assignment PIN_AF17 -to AUDIO_L
+set_location_assignment PIN_AC17 -to AUDIO_R
+set_location_assignment PIN_C21 -to AUDIO_IN
+
+set_location_assignment PIN_AD15 -to I2S_LRCK
+set_location_assignment PIN_AC15 -to I2S_BCK
+set_location_assignment PIN_AE14 -to I2S_DATA
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_A[*]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_BA[0]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_BA[1]
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQMH
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_DQML
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nRAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nCAS
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nWE
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to SDRAM_nCS
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to SDRAM_DQ[*]
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to SDRAM_DQ[*]
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_BCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_LRCK
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to I2S_DATA
+
+# =========OTHERS============= UART PINS ALSO IN EXPANSION EXP_PIN_70 AND EXP_PIN_72 
+set_location_assignment PIN_A23 -to LED
+
+set_location_assignment PIN_B19 -to UART_TX
+set_location_assignment PIN_B17 -to UART_RX
+
+# QMTech Leds  (0 = led on)
+set_location_assignment PIN_A25 -to LED1
+set_location_assignment PIN_A24 -to LED2
+
+# QMTech Keys  (0 = button pressed)
+set_location_assignment PIN_AD23 -to KEY0
+set_location_assignment PIN_AD24 -to KEY1
+
+#============================
+ 
+
+# Classic Timing Assignments                                                                           
+# ==========================                                                                           
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP "-40"
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 100
+# Analysis & Synthesis Assignments                                                                           
+# ================================                                                                           
+set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
+set_global_assignment -name TOP_LEVEL_ENTITY Mega65_Neptuno2
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name SAVE_DISK_SPACE OFF
+# Fitter Assignments                                                                           
+# ==================                                                                           
+set_global_assignment -name FITTER_EARLY_TIMING_ESTIMATE_MODE OPTIMISTIC
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC_FOR_AREA ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_MAP_LOGIC_TO_MEMORY_FOR_AREA ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT EXTRA
+set_global_assignment -name DEVICE EP4CGX150DF27I7
+set_global_assignment -name FAMILY "Cyclone IV GX"
+set_global_assignment -name CYCLONEIII_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name FORCE_CONFIGURATION_VCCIO ON
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name RESERVE_DATA0_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DATA1_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_FLASH_NCE_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name RESERVE_DCLK_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
+set_global_assignment -name OPTIMIZE_MULTI_CORNER_TIMING ON
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
+# Assembler Assignments                                                                           
+# =====================                                                                           
+set_global_assignment -name GENERATE_RBF_FILE ON
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+# SignalTap II Assignments                                                                           
+# ========================                                                                           
+set_global_assignment -name ENABLE_SIGNALTAP OFF
+set_global_assignment -name USE_SIGNALTAP_FILE output_files/sdram.stp
+# Power Estimation Assignments                                                                           
+# ============================                                                                           
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+# Advanced I/O Timing Assignments                                                                           
+# ===============================                                                                           
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+# ------------------------                                                                           
+# start ENTITY(MENU)                                                                           
+# Pin & Location Assignments                                                                           
+# ==========================                                                                           
+
+                                                                         
+# Fitter Assignments
+# ==================
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[6]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[7]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[8]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[9]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[10]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[11]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_A[12]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[6]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[7]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[8]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[9]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[10]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[11]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[12]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[13]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[14]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQ[15]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_BA[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_BA[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQML
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_DQMH
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nRAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nCAS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nWE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_nCS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_CKE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to SDRAM_CLK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_R[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_G[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_B[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_HS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to VGA_VS
+set_instance_assignment -name CURRENT_STRENGTH_NEW "MAXIMUM CURRENT" -to LED
+                                                                   
+
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_BCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_LRCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to I2S_DATA
+                                                                        
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to SPI_DO
+set_instance_assignment -name CURRENT_STRENGTH_NEW 4MA -to CONF_DATA0
+
+# ---------------------------
+set_global_assignment -name VERILOG_MACRO "I2S_AUDIO=1"
+set_global_assignment -name VERILOG_MACRO "USE_CLOCK_50=1"
+set_global_assignment -name VERILOG_MACRO "BIG_OSD=1"
+
+# Incremental Compilation Assignments                                                                           
+# ===================================                                                                           
+set_global_assignment -name DSP_BLOCK_BALANCING "DSP BLOCKS"
+set_global_assignment -name AUTO_MERGE_PLLS OFF
+
+
+set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
+
+#set_global_assignment -name QIP_FILE Mega65.qip
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+
+
+
+
+set_global_assignment -name ENABLE_OCT_DONE OFF
+set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
+set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
+set_global_assignment -name STRATIXV_CONFIGURATION_SCHEME "PASSIVE SERIAL"
+set_global_assignment -name ALLOW_REGISTER_RETIMING ON
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name ROUTER_REGISTER_DUPLICATION ON
+set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 4
+set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 1.0
+set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
+set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
+set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION AUTOMATICALLY
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS "SPARSE AUTO"
+set_global_assignment -name QIP_FILE TwoPortRam.qip
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/vibrato.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/opl3_log_sine_lut.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/opl3_exp_lut.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/tremolo.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/phase_generator.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/ksl_add_rom.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/env_rate_counter.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/calc_rhythm_phase.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/calc_phase_inc.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/envelope_generator.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/edge_detector.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/operator.v
+set_global_assignment -name QIP_FILE mega65/src/verilog/asym_ram_64x16b.qip
+set_global_assignment -name QIP_FILE mega65/src/verilog/asym_ram_64x1K.qip
+set_global_assignment -name QIP_FILE mega65/src/verilog/asym_ram_128x1K.qip
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/asym_ram_sdp.v
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/UART_TX_CTRL.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/monitor_bus.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/monitor_top.v
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram8x4096_sync_2cs.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/bitplane.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/divider32.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/shifter32.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/frame_generator.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2c_wrapper.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2c_controller.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/grove_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pdm_to_pcm.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram32x1024_sync.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_bits_to_bytes.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_gaps_to_bits.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/rll27_quantise_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/rll27_gaps_to_bits.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_quantise_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_decoder.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram8x4096_sync.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/crc1581.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/touch.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sdcardio.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sdcard.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/rll27_bits_to_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/raw_bits_to_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mfm_bits_to_gaps.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2c_master.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pcm_transceiver.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pcm_to_pdm.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pcm_clock.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2s_transceiver.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2s_clock.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/audio_mixer.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/audio_complex.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/uart_rx_buffered.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/uart_rx.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/uart_charrom.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/buffereduart.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/asym_ram.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ethernet_miim.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/crc.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/eth_beacon_ram.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram8x2048.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ethernet.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/version.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_top.v
+set_global_assignment -name VERILOG_INCLUDE_FILE mega65/src/verilog/6502_inc.vh
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/vfpga/overlay_IP.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/driverom.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/vfpga/vfpga_wrapper_8bit.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/dpram8x4096.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/m6522.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_filters.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/sid_envelope.v
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_voice.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_tables.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_6581.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/internal1541.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/iomapper.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mouse_input.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/visual_keyboard.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/termmem.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/rain.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/vicii_sprites.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/colourram.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram18x2k.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram36x1k.vhdl
+set_global_assignment -name VHDL_FILE "mega65/src/vhdl/shadowram-a100t.vhdl"
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/viciv.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/victypes.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/machine.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/expansion_port_controller.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/opl2.v
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/debugtools.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/slow_devices.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mega65kbd_to_matrix.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/i2s_transmitter.vhd
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/cputypes.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/Mega65.vhdl
+set_global_assignment -name SYSTEMVERILOG_FILE Mega65_Neptuno2.sv
+set_global_assignment -name VERILOG_FILE build_id.v
+set_global_assignment -name SDC_FILE Mega65_Neptuno2.sdc
+set_global_assignment -name SYSTEMVERILOG_FILE sdram.sv
+set_global_assignment -name QIP_FILE "mist-modules/mist.qip"
+set_global_assignment -name QIP_FILE pll.qip
+set_global_assignment -name QIP_FILE pll2.qip
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/types_pkg.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/kb_matrix_ram.vhdl
+set_global_assignment -name VERILOG_INCLUDE_FILE mega65/src/verilog/opl3.vh
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pixel_driver.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/gs4510.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/neotrng.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/fast_divide.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/multiply32.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_screen_ram_buffer.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/charrom.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_alpha_blend.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/pal_simulation.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/bitplanes.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sprite.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/lfsr16.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/oskmem.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram32x1024.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/hyppo.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/accessible_keyboard.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/framepacker.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ghdl_ram8x4096.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/cia6526.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/c65uart.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/keyboard_complex.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/virtual_to_matrix.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/keyboard_to_matrix_wukong.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/ps2_to_matrix.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/keymapper.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/matrix_to_ascii.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_coeffs_mux.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sid_coeffs.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/sid_voice_8580.v
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/vfpga/vfpga_clock_controller_pausable.vhdl
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/monitor_mem.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/monitor_ctrl.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_alu.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_ucode.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_timing.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_reg.v
+set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_mux.v
+set_global_assignment -name QIP_FILE Resolve_VDC2VICIV_2Port.qip
+set_global_assignment -name ALLOW_REGISTER_DUPLICATION ON
+set_global_assignment -name QIP_FILE ColourRam.qip
+set_global_assignment -name SYSTEMVERILOG_FILE Mega65_NeptUNO2.sv
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
