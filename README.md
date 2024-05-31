@@ -1,10 +1,30 @@
 # MEGA65 = Enhanced c65 running in FPGA.
+ 
+This core is an Altera FPGA version based on [Mega65 core](https://github.com/MEGA65/mega65-core) from Xilinx FPGA Artix7 200 
 
-Version for Poseidon board + EP4CGX150 QMTECH
+Thanks to [Yo_me](https://github.com/naeloob) for solving the graphic glitches and the support of [Paul Gardner-Stephen](HTTP://mega65.org) and [RetroWiki DevTeam](https://www.retrowiki.es/).
+
+Version for:
+   Poseidon board + EP4CGX150 QMTECH
+   NeptUNO+ board
+
+Get your Poseidon board --> [here](https://manuferhi.com/p/poseidon-motherboard)
+EP4CGX150 QMTECH ==> [here](https://www.aliexpress.us/item/3256803879412530.html)
+And your NeptUNO+ boards --> [here](https://antoniovillena.com/product/neptuno-plus/)
 
 Refer to "[./docs/index.md](./docs/index.md)" for the index file of the main DOC documentation.  
 This documentation is best viewed using the github web-interface at:  
 https://github.com/MEGA65/mega65-core/blob/master/README.md
+
+You will optionally need the a MEGA65 ROM file, if you wish to use BASIC65:
+https://files.mega65.org?id=54e69439-f25e-4124-8c78-22ea7ddc0f1c
+
+If you do not have such a file, the MEGA65 contains the free and open-source
+OpenROM alternative.
+
+# Automated Build Server
+
+The MEGA65 project maintains an automated build server at https://builder.mega65.org/
 
 You will optionally need the a C65 ROM file, if you wish to use BASIC 10:
 
