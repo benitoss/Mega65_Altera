@@ -9,8 +9,11 @@ Version for:
    NeptUNO+ board
 
 Get your Poseidon board --> [here](https://manuferhi.com/p/poseidon-motherboard)
+
 EP4CGX150 QMTECH ==> [here](https://www.aliexpress.us/item/3256803879412530.html)
+
 And your NeptUNO+ boards --> [here](https://antoniovillena.com/product/neptuno-plus/)
+
 
 Refer to "[./docs/index.md](./docs/index.md)" for the index file of the main DOC documentation.  
 This documentation is best viewed using the github web-interface at:  
