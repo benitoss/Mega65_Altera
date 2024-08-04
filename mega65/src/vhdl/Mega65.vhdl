@@ -39,9 +39,10 @@ entity container is
          clock27    : STD_LOGIC;
 	      cpuclock   : STD_LOGIC;
 	      pixelclock : STD_LOGIC;
-	      clock162    : STD_LOGIC;
+	      clock162   : STD_LOGIC;
+			clock162m  : STD_LOGIC;  -- phase shifted by -207 degrees for SDRAM read timing
 	      clock200   : STD_LOGIC;
-	      clock100    : STD_LOGIC;
+	      clock100   : STD_LOGIC;
 	      ethclock   : STD_LOGIC;  -- 50 Mhz
   
          btnCpuReset : in  STD_LOGIC;
@@ -82,6 +83,22 @@ entity container is
         fb_down  : in std_logic;
         fb_fire  : in std_logic;
 
+		  
+		  ----------------------------------------------------------------------
+         -- SDRAM as expansion RAM
+         ----------------------------------------------------------------------
+         sdram_clk : out std_logic;
+         sdram_cke : out std_logic;
+         sdram_ras_n : out std_logic;
+         sdram_cas_n : out std_logic;
+         sdram_we_n : out std_logic;
+         sdram_cs_n : out std_logic;
+         sdram_ba : out unsigned(1 downto 0);
+         sdram_a : out unsigned(12 downto 0);
+         sdram_dqml : out std_logic;
+         sdram_dqmh : out std_logic;
+         sdram_dq : inout unsigned(15 downto 0);
+			
          ---------------------------------------------------------------------------
          -- IO lines to QSPI config flash (used so that we can update bitstreams)
          ---------------------------------------------------------------------------
@@ -113,16 +130,16 @@ entity container is
          ---------------------------------------------------------------------------
          -- IO lines to the ethernet controller
          ---------------------------------------------------------------------------
---         eth_mdio : inout std_logic;
---         eth_mdc : out std_logic;
---         eth_reset : out std_logic;
---         eth_rxd : in unsigned(1 downto 0);
---         eth_txd : out unsigned(1 downto 0);
---         eth_rxer : in std_logic;
---         eth_txen : out std_logic;
---         eth_rxdv : in std_logic;
---         eth_interrupt : in std_logic;
---         eth_clock : out std_logic;
+         eth_mdio : inout std_logic;
+         eth_mdc : out std_logic;
+         eth_reset : out std_logic;
+         eth_rxd : in unsigned(1 downto 0);
+         eth_txd : out unsigned(1 downto 0);
+         eth_rxer : in std_logic;
+         eth_txen : out std_logic;
+         eth_rxdv : in std_logic;
+         eth_interrupt : in std_logic;
+         eth_clock : out std_logic;
          
          -------------------------------------------------------------------------
          -- Lines for the SDcard interface itself
@@ -198,6 +215,9 @@ end container;
 
 architecture Behavioral of container is
 
+  -- Use to select SDRAM or hyperram
+  signal sdram_t_or_hyperram_f : boolean;
+  
   --signal UART_TXD : std_logic := '1';
   
   signal white_dna : std_logic_vector(59 downto 0) := X"04814CE1138705C";  -- My DNA 
@@ -353,15 +373,38 @@ architecture Behavioral of container is
   signal expansionram_read : std_logic;
   signal expansionram_write : std_logic;
   signal expansionram_rdata : unsigned(7 downto 0);
+  
+  signal hyperram_rdata : unsigned(7 downto 0);
+  signal sdram_rdata : unsigned(7 downto 0);
+  
   signal expansionram_wdata : unsigned(7 downto 0);
   signal expansionram_address : unsigned(26 downto 0);
-  signal expansionram_data_ready_strobe : std_logic;
+  signal expansionram_data_ready_toggle : std_logic;
+  --signal expansionram_data_ready_strobe : std_logic;
   signal expansionram_busy : std_logic;
 
+  signal hyperram_data_ready_toggle : std_logic;
+  signal hyperram_busy : std_logic;
+  signal sdram_data_ready_toggle : std_logic;
+  signal sdram_busy : std_logic;
+  
+  
   signal current_cache_line : cache_row_t := (others => (others => '0'));
   signal current_cache_line_address : unsigned(26 downto 3) := (others => '0');
   signal current_cache_line_valid : std_logic := '0';
+--  signal expansionram_current_cache_line_next_toggle : std_logic := '0';
+
+  signal expansionram_current_cache_line : cache_row_t := (others => (others => '0'));
+  signal expansionram_current_cache_line_address : unsigned(26 downto 3) := (others => '0');
+  signal expansionram_current_cache_line_valid : std_logic := '0';
+  signal hyperram_cache_line : cache_row_t := (others => (others => '0'));
+  signal hyperram_cache_line_address : unsigned(26 downto 3) := (others => '0');
+  signal hyperram_cache_line_valid : std_logic := '0';
+  signal sdram_cache_line : cache_row_t := (others => (others => '0'));
+  signal sdram_cache_line_address : unsigned(26 downto 3) := (others => '0');
+  signal sdram_cache_line_valid : std_logic := '0';
   signal expansionram_current_cache_line_next_toggle : std_logic := '0';
+  signal expansionram_current_cache_line_prev_toggle : std_logic := '0';
 
   
   signal audio_left : std_logic_vector(19 downto 0);
@@ -384,6 +427,15 @@ architecture Behavioral of container is
   signal disco_led_val : unsigned(7 downto 0);
   signal disco_led_id : unsigned(7 downto 0);
 
+  signal hyper_addr : unsigned(18 downto 3) := (others => '0');
+  signal hyper_request_toggle : std_logic := '0';
+  signal hyper_data : unsigned(7 downto 0) := x"00";
+  signal sdram_data : unsigned(7 downto 0) := x"00";
+  signal viciv_attic_data : unsigned(7 downto 0) := x"00";
+  signal hyper_data_strobe : std_logic := '0';
+  signal sdram_data_strobe : std_logic := '0';
+  signal viciv_attic_data_strobe : std_logic := '0';
+  
   signal fm_left : signed(15 downto 0);
   signal fm_right : signed(15 downto 0);
 
@@ -413,16 +465,16 @@ architecture Behavioral of container is
   signal cart_d_read : unsigned(7 downto 0) := (others => 'Z');
   signal cart_a : unsigned(15 downto 0) := (others => 'Z');
 
-  signal eth_mdio : std_logic;
-  signal eth_mdc : std_logic;
-  signal eth_reset : std_logic;
-  signal eth_rxd : unsigned(1 downto 0);
-  signal eth_txd : unsigned(1 downto 0);
-  signal eth_rxer : std_logic;
-  signal eth_txen : std_logic;
-  signal eth_rxdv : std_logic;
-  signal eth_interrupt : std_logic;
-  signal eth_clock : std_logic;  
+--  signal eth_mdio : std_logic;
+--  signal eth_mdc : std_logic;
+--  signal eth_reset : std_logic;
+--  signal eth_rxd : unsigned(1 downto 0);
+--  signal eth_txd : unsigned(1 downto 0);
+--  signal eth_rxer : std_logic;
+--  signal eth_txen : std_logic;
+--  signal eth_rxdv : std_logic;
+--  signal eth_interrupt : std_logic;
+--    signal eth_clock : std_logic;  
 
   signal iec_clk_en : std_logic := 'Z';
   signal iec_data_en : std_logic := 'Z';
@@ -475,6 +527,10 @@ architecture Behavioral of container is
   signal vga_blank : std_logic := '0';
 
   signal tmds : slv_9_0_t(0 to 2);
+  
+  signal eth_load_enable : std_logic;
+  
+  signal sdram_slow_clock : std_logic;
   
 begin
 
@@ -635,9 +691,9 @@ d0: if true generate
 --            pcm_clk   => pcm_clk,
 --            pcm_clken => pcm_clken,
 --
-----            i2s_data_out => audio_sdata,
-----            i2s_lrclk => audio_lrclk,
-----            i2s_bick => audio_blck,
+--            i2s_data_out => audio_sdata,
+--            i2s_lrclk => audio_lrclk,
+--            i2s_bick => audio_blck,
 --           
 --            audio_left_slow => audio_left_slow,
 --            audio_right_slow => audio_right_slow,
@@ -757,9 +813,94 @@ d0: if true generate
 
         flopled2 => flopled2_drive,
         flopledsd => flopledsd_drive,
-        eth_load_enable => '0'
+        eth_load_enable => eth_load_enable
         );
 
+   
+--	altddio_out_sdram_inst : work.altddio_out_sdram 
+--	  PORT MAP (
+--		aclr	      => '0',
+--		datain_h	   => "0",
+--		datain_l	   => "1",
+--		oe	         => '1',
+--		outclock	   => clock162,
+--		outclocken	=> '1',
+--		dataout(0)  => sdram_clk
+--	);
+	 
+   sdram_clk <= clock162m;
+
+--  altddio_out #(
+--    .extend_oe_disable("OFF"),
+--    .intended_device_family("Cyclone IV"),
+--    .invert_output("OFF"),
+--    .lpm_hint("UNUSED"),
+--    .lpm_type("altddio_out"),
+--    .oe_reg("UNREGISTERED"),
+--    .power_up_high("OFF"),
+--    .width(1)
+--   )
+--   sdramclk_ddr (
+--    .datain_h(1'b0),
+--    .datain_l(1'b1),
+--    .outclock(clk),
+--    .dataout(SDRAM_CLK),
+--    .aclr(1'b0),
+--    .aset(1'b0),
+--    .oe(1'b1),
+--    .outclocken(1'b1),
+--    .sclr(1'b0),
+--    .sset(1'b0)
+--   );
+		  
+  sdramctl0:
+  if true generate
+  sdramctrl0: entity work.sdram_controller
+    port map (
+      pixelclock => pixelclock,
+      identical_clocks => sdram_slow_clock,
+      clock162 => clock162,
+      clock162r => clock162m,
+
+      -- XXX Debug by showing if expansion RAM unit is receiving requests or not
+--      request_counter => led,
+
+      viciv_addr => hyper_addr,
+      viciv_request_toggle => hyper_request_toggle,
+      viciv_data_out => sdram_data,
+      viciv_data_strobe => sdram_data_strobe,
+
+      -- reset => reset_out,
+      address => expansionram_address,
+      wdata => expansionram_wdata,
+      read_request => expansionram_read,
+      write_request => expansionram_write,
+      rdata => sdram_rdata,
+      data_ready_toggle => sdram_data_ready_toggle,
+      busy => sdram_busy,
+
+      current_cache_line => sdram_cache_line,
+      current_cache_line_address => sdram_cache_line_address,
+      current_cache_line_valid => sdram_cache_line_valid,
+      expansionram_current_cache_line_next_toggle  => expansionram_current_cache_line_next_toggle,
+      expansionram_current_cache_line_prev_toggle  => expansionram_current_cache_line_prev_toggle,
+
+
+      sdram_a => sdram_a,
+      sdram_ba => sdram_ba,
+      sdram_dq => sdram_dq,
+      sdram_cke => sdram_cke,
+      sdram_cs_n => sdram_cs_n,
+      sdram_ras_n => sdram_ras_n,
+      sdram_cas_n => sdram_cas_n,
+      sdram_we_n => sdram_we_n,
+      sdram_dqml => sdram_dqml,
+      sdram_dqmh => sdram_dqmh
+
+      );
+  end generate;
+
+  
     slow_devices0: entity work.slow_devices
       generic map (
         target => wukong
@@ -815,9 +956,50 @@ d0: if true generate
         ----------------------------------------------------------------------
         -- Expansion RAM interface (upto 127MB)
         ----------------------------------------------------------------------
-        expansionram_busy => '1',
-        expansionram_data_ready_toggle => '1'
+--        expansionram_busy => '1',
+--        expansionram_data_ready_toggle => '1'
+        expansionram_data_ready_toggle => expansionram_data_ready_toggle,
+        expansionram_busy => expansionram_busy,
+        expansionram_read => expansionram_read,
+        expansionram_write => expansionram_write,
+        expansionram_address => expansionram_address,
+        expansionram_rdata => expansionram_rdata,
+        expansionram_wdata => expansionram_wdata,
+
+        expansionram_current_cache_line => expansionram_current_cache_line,
+        expansionram_current_cache_line_address => expansionram_current_cache_line_address
+--      expansionram_current_cache_line_valid => current_cache_line_valid,
         
+		  ----------------------------------------------------------------------
+      -- Expansion/cartridge port
+      ----------------------------------------------------------------------
+--        cart_ctrl_dir => cart_ctrl_dir,
+--        cart_ctrl_en => cart_ctrl_en,
+--        cart_haddr_dir => cart_haddr_dir,
+--        cart_laddr_dir => cart_laddr_dir,
+--        cart_data_dir => cart_data_dir,
+--        cart_data_en => cart_data_en,
+--        cart_addr_en => cart_addr_en,
+--        cart_phi2 => cart_phi2,
+--        cart_dotclock => cart_dotclock,
+--        cart_reset => cart_reset_int,
+--
+--        cart_nmi => cart_nmi,
+--        cart_irq => cart_irq,
+--        cart_dma => cart_dma,
+--
+--        cart_exrom => cart_exrom,
+--        cart_ba => cart_ba,
+--        cart_rw => cart_rw,
+--        cart_roml => cart_roml_int,
+--        cart_romh => cart_romh_int,
+--        cart_io1 => cart_io1,
+--        cart_game => cart_game,
+--        cart_io2 => cart_io2,
+--
+--        cart_d_in => cart_d,
+--        cart_d => cart_d,
+--        cart_a => cart_a
         );
   end generate;
     
@@ -864,7 +1046,14 @@ d0: if true generate
   machine0: entity work.machine
     generic map (cpu_frequency => clock_frequency, --MYM Antes 40500000,
                  target => wukong,
-                 hyper_installed => false--true -- For VIC-IV to know it can use
+					  -- MEGA65R3 - R5 has A200T which has plenty of spare BRAM.
+                     -- We can thus increase the number of eth RX buffers from
+                     -- 4x2KB to 32x2KB = 64KB.
+                     -- This will, inpractice, allow the reception of ~32x1.3K
+                     -- = ~40KB of data in a burst, before the RX buffers are
+                     -- filled.
+                 num_eth_rx_buffers => 16,
+                 hyper_installed => true --true -- For VIC-IV to know it can use
                                          -- hyperram for full-colour glyphs
                  )                 
     port map (
@@ -876,11 +1065,21 @@ d0: if true generate
       clock27 => clock27,
       clock50mhz      => ethclock,
 
---      hyper_addr => hyper_addr,
---      hyper_request_toggle => hyper_request_toggle,
-      hyper_data => (others => 'Z'),
-      hyper_data_strobe => '1',
+	   sdram_t_or_hyperram_f => sdram_t_or_hyperram_f,
+      sdram_slow_clock => sdram_slow_clock,
+		
+		eth_load_enabled => eth_load_enable,
+		
+----      hyper_addr => hyper_addr,
+----      hyper_request_toggle => hyper_request_toggle,
+--      hyper_data => (others => 'Z'),
+--      hyper_data_strobe => '1',
       
+		hyper_addr => hyper_addr,
+      hyper_request_toggle => hyper_request_toggle,
+      hyper_data => viciv_attic_data,
+      hyper_data_strobe => viciv_attic_data_strobe,
+		
       fast_key => fastkey,
       
       btncpureset => btncpureset,
@@ -1007,6 +1206,12 @@ d0: if true generate
       slow_prefetched_data => slow_prefetched_data,
       slow_prefetched_request_toggle => slow_prefetched_request_toggle,
       
+		slowram_cache_line => expansionram_current_cache_line,
+      slowram_cache_line_valid => expansionram_current_cache_line_valid,
+      slowram_cache_line_addr => expansionram_current_cache_line_address,
+      slowram_cache_line_inc_toggle => expansionram_current_cache_line_next_toggle,
+      slowram_cache_line_dec_toggle => expansionram_current_cache_line_prev_toggle,
+	
       cpu_exrom => cpu_exrom,      
       cpu_game => cpu_game,
       cart_access_count => cart_access_count,
@@ -1092,9 +1297,11 @@ d0: if true generate
   qspidb <= qspidb_out when qspidb_oe='1' else "ZZZZ";
   qspidb_in <= qspidb;
 
-  process (pixelclock,cpuclock,pcm_clk,
-           irq,irq_out,nmi,nmi_out,
-           audio_right,audio_left) is
+--  process (pixelclock,cpuclock,pcm_clk,
+--           irq,irq_out,nmi,nmi_out,
+--           audio_right,audio_left, 
+--			  sdram_t_or_hyperram_f) is
+  process (pixelclock,cpuclock,pcm_clk,sdram_t_or_hyperram_f) is
   begin
     --vdac_sync_n <= '0';  -- no sync on green
     vdac_blank_n <= '1'; -- was: not (v_hsync or v_vsync);
@@ -1102,6 +1309,28 @@ d0: if true generate
     -- VGA output at full pixel clock
     vdac_clk <= pixelclock;
 
+	 
+	  if sdram_t_or_hyperram_f = true then
+      expansionram_current_cache_line <= sdram_cache_line;
+      expansionram_current_cache_line_valid <= sdram_cache_line_valid;
+      expansionram_current_cache_line_address <= sdram_cache_line_address;
+      expansionram_busy <= sdram_busy;
+      expansionram_data_ready_toggle <= sdram_data_ready_toggle;
+      expansionram_rdata <= sdram_rdata;
+      viciv_attic_data_strobe <= sdram_data_strobe;
+      viciv_attic_data <= sdram_data;
+    else
+      expansionram_current_cache_line <= hyperram_cache_line;
+      expansionram_current_cache_line_valid <= hyperram_cache_line_valid;
+      expansionram_current_cache_line_address <= hyperram_cache_line_address;
+      expansionram_busy <= hyperram_busy;
+      expansionram_data_ready_toggle <= hyperram_data_ready_toggle;
+      expansionram_rdata <= hyperram_rdata;
+      viciv_attic_data_strobe <= hyper_data_strobe;
+      viciv_attic_data <= hyper_data;
+    end if;
+	 
+	 	 
     -- HDMI output at 27MHz
 --    hdmi_clk <= clock27;
 
@@ -1241,34 +1470,32 @@ d0: if true generate
       h_audio_left(19) <= not audio_left(19);
     end if;
 
-
     
-    
-    if portp(3)='1' then
-      hdmi_is_progressive <= true;
-    else
-      hdmi_is_progressive <= false;
-    end if;
-    if portp(4)='1' then
-      hdmi_is_pal <= true;
-    else
-      hdmi_is_pal <= false;
-    end if;
-    if portp(5)='1' then
-      hdmi_is_30khz <= true;
-    else
-      hdmi_is_30khz <= false;
-    end if;
-    if portp(6)='1' then
-      hdmi_is_limited <= true;
-    else
-      hdmi_is_limited <= false;
-    end if;
-    if portp(7)='1' then
-      hdmi_is_widescreen <= true;
-    else
-      hdmi_is_widescreen <= false;
-    end if;
+--    if portp(3)='1' then
+--      hdmi_is_progressive <= true;
+--    else
+--      hdmi_is_progressive <= false;
+--    end if;
+--    if portp(4)='1' then
+--      hdmi_is_pal <= true;
+--    else
+--      hdmi_is_pal <= false;
+--    end if;
+--    if portp(5)='1' then
+--      hdmi_is_30khz <= true;
+--    else
+--      hdmi_is_30khz <= false;
+--    end if;
+--    if portp(6)='1' then
+--      hdmi_is_limited <= true;
+--    else
+--      hdmi_is_limited <= false;
+--    end if;
+--    if portp(7)='1' then
+--      hdmi_is_widescreen <= true;
+--    else
+--      hdmi_is_widescreen <= false;
+--    end if;
   
   
     if rising_edge(pixelclock) then

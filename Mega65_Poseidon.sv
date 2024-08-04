@@ -4,9 +4,10 @@
 module Mega65_Poseidon 
 #(VGA_BITS = 6)
 (
-	input         CLOCK_27,
+	input         CLOCK_27, // In Poseidon is 50 Mhz
 
 	output        LED,
+	output        LED2,
 	output [VGA_BITS-1:0] VGA_R,
 	output [VGA_BITS-1:0] VGA_G,
 	output [VGA_BITS-1:0] VGA_B,
@@ -28,7 +29,7 @@ module Mega65_Poseidon
 `endif
 
 	// External SD adapter in Expansion Bus
-	output        SD_CS_n,
+	 output        SD_CS_n,
     output        SD_CLK,
     output        SD_MOSI,
     input         SD_MISO,
@@ -75,6 +76,20 @@ module Mega65_Poseidon
 	output        SDRAM2_CLK,
 	output        SDRAM2_CKE,
 `endif
+
+// ---------------------------------------------------------------------------
+// -- IO lines to the ethernet controller
+// ---------------------------------------------------------------------------
+   inout         eth_mdio,
+   output        eth_mdc,
+//   output         eth_reset,
+   input   [1:0] eth_rxd,
+   output  [1:0] eth_txd,
+//   input         eth_rxer,   // 0
+   output        eth_txen,
+   input         eth_rxdv,  // CRS_DV
+//   input         eth_interrupt,  //0
+//   output        eth_clock,   // The Ethernet module already has a 50 Mhz clock
 
 `ifdef ANALOG_AUDIO
 	output        AUDIO_L,
@@ -159,13 +174,14 @@ localparam CONF_STR = {
 	"MEGA65;;",
 	"S0U,VHDIMG,Mount SD;",
 	"O2,UartMon,Yes,No;",
-	"O34,Scanlines,Off,25%,50%,75%;",
 	"O5,Blend,Off,On;",
 	"O6,Joystick Swap,Off,On;",
 	`SEP
 	"T0,Reset;",
 	"V,v1.00.",`BUILD_DATE
 };
+
+// "O34,Scanlines,Off,25%,50%,75%;",
 
 wire [63:0] status;
 wire        ioctl_downl;
@@ -179,7 +195,7 @@ wire        invtapein = status[8];
 
 //assign 		LED = ~ioctl_downl & (tzxplayer_pause | tape_motor_led);
 assign 		LED = ~ioctl_downl;
-assign 		SDRAM_CKE = 1;
+//assign 		SDRAM_CKE = 1;
 
 wire uart_rx_mon = ~status[2] ? UART_RX:1'b1;
 wire uart_rx_tmp = ~status[2] ? 1'b1:UART_RX;
@@ -188,7 +204,7 @@ assign UART_TX = ~status[2] ? uart_tx_mon:uart_tx_tmp;
 
 // Clock generation
 //wire sdclk, clk_112, clk_28, clk_28n = ~clk_28, clk_14, clk_7, pll_locked;
-wire clock27, clock40_5, clock81, clock162, pll_locked, pll_locked1;
+wire clock27, clock40_5, clock81, clock162, clock162m, pll_locked, pll_locked1;
 
 pll pll(
 	.inclk0(CLOCK_27),  // In Poseidon is 50 Mhz
@@ -196,13 +212,14 @@ pll pll(
 	.c1(clock40_5),
 	.c2(clock81),
 	.c3(clock162),
+	.c4(clock162m), // phase shifted by -207 degrees for SDRAM read timing
 	.locked(pll_locked1)
 	);
 
 wire clock200, clock100, clock50, pll_locked2, clocksd;
 
 pll2	pll2 (
-	.inclk0 (CLOCK_27),
+	.inclk0 (CLOCK_27),  // In Poseidon is 50 Mhz
 	.c0 (clock200),
 	.c1 (clock100),
 	.c2 (clock50),
@@ -330,7 +347,7 @@ wire ps2clk;
 wire ps2data;
 
 
-user_io #(.STRLEN(($size(CONF_STR)>>3)), .ROM_DIRECT_UPLOAD(DIRECT_UPLOAD), .FEATURES(32'h0 | (BIG_OSD << 13) | (HDMI << 14)), .PS2DIV(1000)) user_io (
+user_io #(.STRLEN(($size(CONF_STR)>>3)), .ROM_DIRECT_UPLOAD(DIRECT_UPLOAD), .FEATURES(32'h0 | (BIG_OSD << 13) | (HDMI << 14)), .PS2DIV(2032)) user_io (
 	.clk_sys        ( clock27         ),
 	.clk_sd         ( clocksd         ),
 	.conf_str       ( CONF_STR       ),
@@ -400,11 +417,14 @@ user_io #(.STRLEN(($size(CONF_STR)>>3)), .ROM_DIRECT_UPLOAD(DIRECT_UPLOAD), .FEA
 //	end
 //end
 
-wire [10:0] zxn_joy_left =  joyswap ? joy0[10:0] : joy1[10:0];
-wire [10:0] zxn_joy_right = joyswap ? joy1[10:0] : joy0[10:0];
-wire  [2:0] zxn_joy_left_type;
-wire  [2:0] zxn_joy_right_type;
-wire        zxn_joy_io_mode_en;
+wire [15:0] joy_0 = joyswap ? joy1[15:0] : joy0[15:0];
+wire [15:0] joy_1 = joyswap ? joy0[15:0] : joy1[15:0];
+
+//wire [10:0] zxn_joy_left =  joyswap ? joy0[10:0] : joy1[10:0];
+//wire [10:0] zxn_joy_right = joyswap ? joy1[10:0] : joy0[10:0];
+//wire  [2:0] zxn_joy_left_type;
+//wire  [2:0] zxn_joy_right_type;
+//wire        zxn_joy_io_mode_en;
 
 // SD Card
 wire zxn_spi_ss_sd0_n;
@@ -418,10 +438,10 @@ wire sd_sck_int;
 wire sd_mosi_int;
 wire sd_miso_int;
 
-wire sd_cs_n_int_2;
-wire sd_sck_int_2;
-wire sd_mosi_int_2;
-wire sd_miso_int_2;
+//wire sd_cs_n_int_2;
+//wire sd_sck_int_2;
+//wire sd_mosi_int_2;
+//wire sd_miso_int_2;
 
 
 sd_card sd_card (
@@ -522,6 +542,7 @@ container Mega65_instance (
 	.cpuclock				(clock40_5),
 	.pixelclock				(clock81),
 	.clock162				(clock162),
+	.clock162m           (clock162m),
 	.clock200				(clock200),
 	.clock100				(clock100),
 	.ethclock				(clock50),
@@ -530,17 +551,29 @@ container Mega65_instance (
 	
 	.ps2clk 					(ps2clk),
 	.ps2data					(ps2data),
+	   // joy0 --> active high =  X Z Y START A C B U D L R 
+	.fa_left					( ~joy_0[1] ),  // (1'b1)
+	.fa_right				( ~joy_0[0] ),
+   .fa_up					( ~joy_0[3] ),
+   .fa_down					( ~joy_0[2] ),
+   .fa_fire					( ~joy_0[4] ),
+   .fb_left					( ~joy_1[1] ),
+   .fb_right				( ~joy_1[0] ),
+   .fb_up					( ~joy_1[3] ),
+   .fb_down					( ~joy_1[2] ),
+   .fb_fire					( ~joy_1[4] ),
 	
-	.fa_left					( 1'b1 ),
-	.fa_right				( 1'b1 ),
-   .fa_up					( 1'b1 ),
-   .fa_down					( 1'b1 ),
-   .fa_fire					( 1'b1 ),
-   .fb_left					( 1'b1 ),
-   .fb_right				( 1'b1 ),
-   .fb_up					( 1'b1 ),
-   .fb_down					( 1'b1 ),
-   .fb_fire					( 1'b1 ),
+	.sdram_clk 				(SDRAM_CLK),
+   .sdram_cke				(SDRAM_CKE),
+   .sdram_ras_n			(SDRAM_nRAS),
+   .sdram_cas_n			(SDRAM_nCAS),
+   .sdram_we_n				(SDRAM_nWE), 
+   .sdram_cs_n				(SDRAM_nCS),
+   .sdram_ba				(SDRAM_BA),
+   .sdram_a					(SDRAM_A),
+   .sdram_dqml				(SDRAM_DQML),
+   .sdram_dqmh				(SDRAM_DQMH),
+   .sdram_dq				(SDRAM_DQ),
 	
 	.QspiDB					(      ),
 	.QspiCSn					(		 ),
@@ -557,6 +590,20 @@ container Mega65_instance (
 	.audio_blck				(I2S_BCK),
    .audio_lrclk			(I2S_LRCK),
    .audio_sdata			(I2S_DATA),
+	
+	
+	
+	.eth_mdio            (eth_mdio),
+   .eth_mdc             (eth_mdc),
+   .eth_reset           (       ),
+   .eth_rxd             (eth_rxd),
+   .eth_txd             (eth_txd),
+   .eth_txen            (eth_txen),
+   .eth_rxer            (0),
+   .eth_rxdv            (eth_rxdv),
+   .eth_interrupt       (0), 
+	.eth_clock           (       ),
+	
 	
 //Con la sd Interna contra el Framework no la detecta
 //Con la sd Externa contra el Framework la detecta, pero de 2TB
@@ -596,49 +643,49 @@ container Mega65_instance (
    .uart_txd_mon(uart_tx_mon),
 
 	.led						(  ),
-    .led2						(led2)
+   .led2						(led2)
 
 );
 
 
 
 
-reg   [5:0] joy_kempston;
-reg   [4:0] joy_sinclair1;
-reg   [4:0] joy_sinclair2;
-reg   [4:0] joy_cursor;
+//reg   [5:0] joy_kempston;
+//reg   [4:0] joy_sinclair1;
+//reg   [4:0] joy_sinclair2;
+//reg   [4:0] joy_cursor;
 
 
 // Video out
-//mist_video #(.COLOR_DEPTH(8), .SD_HCNT_WIDTH(10), .OUT_COLOR_DEPTH(VGA_BITS), .BIG_OSD(BIG_OSD)) mist_video(
-//	.clk_sys        ( clock27           ),
-//	.SPI_SCK        ( SPI_SCK          ),
-//	.SPI_SS3        ( SPI_SS3          ),
-//	.SPI_DI         ( SPI_DI           ),
-//	.R              ( vgared     ),
-//	.G              ( vgagreen     ),
-//	.B              ( vgablue     ),
-//	.HSync          ( hsync 		     ),
-//	.VSync          ( vsync     		  ),
-//	.VGA_R          ( VGA_R            ),
-//	.VGA_G          ( VGA_G            ),
-//	.VGA_B          ( VGA_B            ),
-//	.VGA_VS         ( VGA_VS           ),
-//	.VGA_HS         ( VGA_HS           ),
-//	.ce_divider     ( 3'b1             ),
-//	.rotate         ( 2'b00            ),
-//	.blend          ( blend            ),
-//	.scandoubler_disable( scandoublerD ),
-//	.scanlines      ( scanlines        ),
-//	.ypbpr          ( ypbpr            ),
-//	.no_csync       ( no_csync         )
-//	);
+mist_video #(.COLOR_DEPTH(8), .SD_HCNT_WIDTH(10), .OUT_COLOR_DEPTH(VGA_BITS), .BIG_OSD(BIG_OSD)) mist_video(
+	.clk_sys        ( clock27           ),
+	.SPI_SCK        ( SPI_SCK          ),
+	.SPI_SS3        ( SPI_SS3          ),
+	.SPI_DI         ( SPI_DI           ),
+	.R              ( vgared     ),
+	.G              ( vgagreen     ),
+	.B              ( vgablue     ),
+	.HSync          ( hsync 		     ),
+	.VSync          ( vsync     		  ),
+	.VGA_R          ( VGA_R            ),
+	.VGA_G          ( VGA_G            ),
+	.VGA_B          ( VGA_B            ),
+	.VGA_VS         ( VGA_VS           ),
+	.VGA_HS         ( VGA_HS           ),
+	.ce_divider     ( 3'b1             ),
+	.rotate         ( 2'b00            ),
+	.blend          ( blend            ),
+	.scandoubler_disable(1'b1  ), //scandoublerD
+	.scanlines      ( scanlines        ),
+	.ypbpr          ( ypbpr            ),
+	.no_csync       ( no_csync         )
+	);
 
-	assign VGA_R = vgared[7:2] ;
-	assign VGA_G = vgagreen[7:2];
-	assign VGA_B = vgablue[7:2];
-	assign VGA_VS = vsync;
-	assign VGA_HS = hsync; 
+//	assign VGA_R = vgared[7:2] ;
+//	assign VGA_G = vgagreen[7:2];
+//	assign VGA_B = vgablue[7:2];
+//	assign VGA_VS = vsync;
+//	assign VGA_HS = hsync; 
 
 `ifdef I2S_AUDIO_HDMI
 assign HDMI_MCLK = 0;

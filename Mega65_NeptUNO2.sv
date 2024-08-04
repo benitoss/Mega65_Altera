@@ -92,6 +92,11 @@ module Mega65_Neptuno2
 	output        AUDIO_R,
 `endif
 
+  	output wire   JOY_CLK,
+   output wire   JOY_LOAD,
+   input  wire   JOY_DATA,
+   output wire   JOY_SELECT,
+ 
 `ifdef I2S_AUDIO
 	output        I2S_BCK,
 	output        I2S_LRCK,
@@ -199,7 +204,7 @@ assign SDRAM2_nWE = 1;
 
 // Clock generation
 //wire sdclk, clk_112, clk_28, clk_28n = ~clk_28, clk_14, clk_7, pll_locked;
-wire clock27, clock40_5, clock81, clock162, pll_locked, pll_locked1;
+wire clock27, clock40_5, clock81, clock162, clock162m, pll_locked1;
 
 pll pll(
 	.inclk0(CLOCK_27),  // In Poseidon is 50 Mhz
@@ -207,6 +212,7 @@ pll pll(
 	.c1(clock40_5),
 	.c2(clock81),
 	.c3(clock162),
+	.c4(clock162m), // phase shifted by -207 degrees for SDRAM read timing
 	.locked(pll_locked1)
 	);
 
@@ -221,7 +227,7 @@ pll2	pll2 (
 	.locked (pll_locked2)
 	);
 
-//assign pll_locked = pll_locked1 & pll_locked2;
+assign pll_locked = pll_locked1 & pll_locked2;
 	
 //reg         clk_28_psg_en;
 //reg   [3:0] clk_28_div;
@@ -514,6 +520,47 @@ pll2	pll2 (
 //
 //
 //
+
+
+	wire joy1up;
+   wire joy1down;
+   wire joy1left;
+   wire joy1right;
+   wire joy1fire1;
+   wire joy1fire2;
+
+   wire joy2up;
+   wire joy2down;
+   wire joy2left;
+   wire joy2right;
+   wire joy2fire1;
+   wire joy2fire2;
+	
+	assign JOY_SELECT = 1'b1;
+
+neptuno_joydecoder  neptuno_joydecoder
+(
+	.clk_i           ( clock27 ),
+	.joy_data_i      ( JOY_DATA ),
+	.joy_clk_o       ( JOY_CLK ),
+	.joy_load_o      ( JOY_LOAD ),
+
+	.joy1_up_o       ( joy1up ),
+	.joy1_down_o     ( joy1down ),
+	.joy1_left_o     ( joy1left ),
+	.joy1_right_o    ( joy1right ),
+	.joy1_fire1_o    ( joy1fire1 ),
+	.joy1_fire2_o    ( joy1fire2 ),
+
+	.joy2_up_o       ( joy2up ),
+	.joy2_down_o     ( joy2down ),
+	.joy2_left_o     ( joy2left ),
+	.joy2_right_o    ( joy2right ),
+	.joy2_fire1_o    ( joy2fire1 ),
+	.joy2_fire2_o    ( joy2fire2 )
+);
+
+
 wire			vdac_clk;
 wire			vdac_blank_n;
 wire			vsync;
@@ -533,6 +580,7 @@ container Mega65_instance (
 	.cpuclock				(clock40_5),
 	.pixelclock				(clock81),
 	.clock162				(clock162),
+	.clock162m           (clock162m),
 	.clock200				(clock200),
 	.clock100				(clock100),
 	.ethclock				(clock50),
@@ -542,16 +590,28 @@ container Mega65_instance (
 	.ps2clk 					(PS2_CLK),
 	.ps2data					(PS2_DAT),
 	
-	.fa_left					( 1'b1 ),
-	.fa_right				( 1'b1 ),
-   .fa_up					( 1'b1 ),
-   .fa_down					( 1'b1 ),
-   .fa_fire					( 1'b1 ),
-   .fb_left					( 1'b1 ),
-   .fb_right				( 1'b1 ),
-   .fb_up					( 1'b1 ),
-   .fb_down					( 1'b1 ),
-   .fb_fire					( 1'b1 ),
+	.fa_left					( joy1left ), //1'b1
+	.fa_right				( joy1right ),
+   .fa_up					( joy1up ),
+   .fa_down					( joy1down ),
+   .fa_fire					( joy1fire1 ),
+   .fb_left					( joy2left ),
+   .fb_right				( joy2right ),
+   .fb_up					( joy2up ),
+   .fb_down					( joy2down ),
+   .fb_fire					( joy2fire1 ),
+	
+	.sdram_clk 				(SDRAM_CLK),
+   .sdram_cke				(SDRAM_CKE),
+   .sdram_ras_n			(SDRAM_nRAS),
+   .sdram_cas_n			(SDRAM_nCAS),
+   .sdram_we_n				(SDRAM_nWE), 
+   .sdram_cs_n				(SDRAM_nCS),
+   .sdram_ba				(SDRAM_BA),
+   .sdram_a					(SDRAM_A),
+   .sdram_dqml				(SDRAM_DQML),
+   .sdram_dqmh				(SDRAM_DQMH),
+   .sdram_dq				(SDRAM_DQ),
 	
 	.QspiDB					(      ),
 	.QspiCSn					(		 ),
@@ -568,6 +628,19 @@ container Mega65_instance (
 	.audio_blck				(I2S_BCK),
    .audio_lrclk			(I2S_LRCK),
    .audio_sdata			(I2S_DATA),
+
+
+//   .eth_mdio            (eth_mdio),
+//   .eth_mdc             (eth_mdc),
+//   .eth_reset           (       ),
+//   .eth_rxd             (eth_rxd),
+//   .eth_txd             (eth_txd),
+//   .eth_txen            (eth_txen),
+//   .eth_rxer            (0),
+//   .eth_rxdv            (eth_rxdv),
+//   .eth_interrupt       (0), 
+//	  .eth_clock           (       ),
+
 	
 //Con la sd Interna contra el Framework no la detecta
 //Con la sd Externa contra el Framework la detecta, pero de 2TB

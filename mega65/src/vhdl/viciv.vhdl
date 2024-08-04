@@ -833,6 +833,8 @@ architecture Behavioral of viciv is
   signal background_colour_select : unsigned(1 downto 0) := "00";
   signal glyph_number : unsigned(12 downto 0) := to_unsigned(0,13);
   signal glyph_y_offset : integer range 0 to 7 := 0;
+  signal glyph_nve_y_offset : std_logic := '0';
+
   signal glyph_colour_drive : unsigned(7 downto 0) := x"00";
   signal glyph_colour_drive2 : unsigned(7 downto 0) := x"00";
   signal glyph_colour : unsigned(7 downto 0) := x"00";
@@ -1386,8 +1388,7 @@ Q_paletteram1 : entity work.TwoPortRam
           inborder_drive,chargen_active_soon_drive,card_number_drive,
           bitplanes_x_start,bitplanes_y_start,dat_y,dat_x,dat_bitplane_offset,
           bitplane_addresses,vicii_2mhz_internal,viciii_fast_internal,
-          bitplane_mode,bitplane_enables,--bitplane_addresses,
-	  bitplane_complements,
+          bitplane_mode,bitplane_enables,bitplane_addresses,bitplane_complements,
           sprite_bitplane_enables,sprite_horizontal_tile_enables,compositer_enable,
           viciv_fast_internal,pal_simulate,sprite_extended_height_enables,
           sprite_extended_height_size,sprite_extended_width_enables,
@@ -2175,6 +2176,7 @@ Q_paletteram1 : entity work.TwoPortRam
       if reset='0' then
         -- Reset sprites to normal behaviour on reset
         sprite_horizontal_tile_enables <= (others => '0');
+        sprite_v400s <= (others => '0');
         sprite_v400_super_msbs <= (others => '0');
         sprite_alpha_blend_enables <= (others => '0');
         sprite_bitplane_enables <= (others => '0');
@@ -2822,7 +2824,7 @@ Q_paletteram1 : entity work.TwoPortRam
           -- @IO:GS $D062 VIC-IV:SCRNPTRBNK screen RAM precise base address (bits 23 - 16)
           screen_ram_base(23 downto 16) <= unsigned(fastio_wdata);
         elsif register_number=99 then
-          -- @IO:GS $D063.0-3 VIC-IV:SCRNPTRMB screen RAM precise base address (bits 31 - 24)
+          -- @IO:GS $D063.0-3 VIC-IV:SCRNPTRMB screen RAM precise base address (bits 27 - 24)
           screen_ram_base(27 downto 24) <= unsigned(fastio_wdata(3 downto 0));
           -- @IO:GS $D063.4-5 VIC-IV:CHRCOUNT Number of characters to display per
           -- row (MSBs)
@@ -3481,6 +3483,8 @@ Q_paletteram1 : entity work.TwoPortRam
         -- Reset glyph Y offset each raster line
         glyph_y_offset <= 0;
 
+        -- Reset glyph using nve y offset
+        glyph_nve_y_offset <= '0';
         -- Hold chargen_y for entire fetch, so that we don't get glitching when
         -- chargen_y increases part way through resulting in characters on
         -- right of display shifting up one physical pixel.
@@ -4498,13 +4502,32 @@ Q_paletteram1 : entity work.TwoPortRam
             -- from character ROM.  As we only have 2^16 positions, the glyphs
             -- must be in only the first 512KB of chipram.
             glyph_data_address(19) <= '0';
+            -- if vertical flip bit is set fetch the char data with 7 - chargen_y
             if glyph_flip_vertical='1' then
-              glyph_data_address(18 downto 6) <= glyph_number(12 downto 0);
-              glyph_data_address(5 downto 3) <= not chargen_y_hold;
+
+              --glyph_data_address(18 downto 6) <= glyph_number(12 downto 0);
+              --glyph_data_address(5 downto 3) <= not chargen_y_hold;
+            ---else
+
+              -- Allow setting an offset in the glyph address for easier
+              -- free vertical positioning of RRB soft-sprites
+              if glyph_nve_y_offset='1' then
+                -- -ve offset visibly moves the char data down the screen
+                glyph_data_address(18 downto 3) <= (glyph_number(12 downto 0) & not chargen_y_hold) - glyph_y_offset;
+              else
+                -- +ve offset visibly moves the char data up the screen
+                glyph_data_address(18 downto 3) <= (glyph_number(12 downto 0) & not chargen_y_hold) + glyph_y_offset;
+              end if;
             else
               -- Allow setting an offset in the glyph address for easier
               -- free vertical positioning of RRB soft-sprites
-              glyph_data_address(18 downto 3) <= (glyph_number(12 downto 0) & chargen_y_hold) + glyph_y_offset;
+              if glyph_nve_y_offset='1' then
+                -- -ve offset visibly moves the char data down the screen
+                glyph_data_address(18 downto 3) <= (glyph_number(12 downto 0) & chargen_y_hold) - glyph_y_offset;
+              else
+                -- +ve offset visibly moves the char data up the screen
+                glyph_data_address(18 downto 3) <= (glyph_number(12 downto 0) & chargen_y_hold) + glyph_y_offset;
+              end if;
             end if;
             if glyph_flip_horizontal='1' then
               glyph_data_address(2 downto 0) <= "111";

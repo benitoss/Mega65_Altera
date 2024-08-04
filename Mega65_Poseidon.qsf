@@ -25,7 +25,7 @@
 # ========================                                                                           
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 13.1
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "21:40:24  MAY 17, 2014"
-set_global_assignment -name LAST_QUARTUS_VERSION "17.1.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "17.0.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name SMART_RECOMPILE ON
@@ -72,6 +72,16 @@ set_location_assignment PIN_C16 -to SD_CS_n
 set_location_assignment PIN_A21 -to SD_MISO
 set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to SD_MISO
 set_location_assignment PIN_A19 -to SD_MOSI
+
+# === Ethernet on expansion Bus ===
+set_location_assignment PIN_AF16 -to eth_mdio
+set_location_assignment PIN_AD16 -to eth_mdc
+set_location_assignment PIN_AD14 -to eth_rxd[0]
+set_location_assignment PIN_AF12 -to eth_rxd[1]
+set_location_assignment PIN_AF9 -to eth_txd[0]
+set_location_assignment PIN_AF8 -to eth_txd[1]
+set_location_assignment PIN_AD10 -to eth_txen
+set_location_assignment PIN_AD15 -to eth_rxdv
  
 # ==========DRAM=============
 set_location_assignment PIN_L25 -to SDRAM_A[0]
@@ -122,11 +132,11 @@ set_location_assignment PIN_AC17 -to AUDIO_IN
 
 # =========EXPANSION PORT====(BUS B)=========
 #
-set_location_assignment PIN_AF16 -to BUS_N41
+#set_location_assignment PIN_AF16 -to BUS_N41
 set_location_assignment PIN_AE15 -to BUS_N42
-set_location_assignment PIN_AD14 -to BUS_N43
-set_location_assignment PIN_AD10 -to BUS_N44
-set_location_assignment PIN_AF8 -to BUS_N45
+#set_location_assignment PIN_AD14 -to BUS_N43
+#set_location_assignment PIN_AD10 -to BUS_N44
+#set_location_assignment PIN_AF8 -to BUS_N45
 set_location_assignment PIN_AE6 -to BUS_N46
 set_location_assignment PIN_AF5 -to BUS_N47
 set_location_assignment PIN_AD4 -to BUS_N48
@@ -165,7 +175,8 @@ set_location_assignment PIN_B11 -to BUS_IE1
 
 
 # =========OTHERS============= UART PINS ALSO IN EXPANSION EXP_PIN_70 AND EXP_PIN_72 
-set_location_assignment PIN_A23 -to LED
+set_location_assignment PIN_A25 -to LED
+set_location_assignment PIN_A24 -to LED1
 #set_location_assignment PIN_AE5 -to UART_RX
 #set_location_assignment PIN_AF4 -to UART_TX
 
@@ -503,6 +514,14 @@ set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
 set_global_assignment -name OPTIMIZE_POWER_DURING_FITTING OFF
 set_global_assignment -name FINAL_PLACEMENT_OPTIMIZATION AUTOMATICALLY
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS "SPARSE AUTO"
+set_global_assignment -name ALLOW_REGISTER_DUPLICATION ON
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/hdmi_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/edid_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mega65r5_board_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mega65r4_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mega65r3_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/mega65r2_i2c.vhdl
+set_global_assignment -name VHDL_FILE mega65/src/vhdl/sdram_controller.vhdl
 set_global_assignment -name QIP_FILE TwoPortRam.qip
 set_global_assignment -name VERILOG_FILE mega65/src/verilog/vibrato.v
 set_global_assignment -name VERILOG_FILE mega65/src/verilog/opl3_log_sine_lut.v
@@ -649,6 +668,7 @@ set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_timing.v
 set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_reg.v
 set_global_assignment -name VERILOG_FILE mega65/src/verilog/6502_mux.v
 set_global_assignment -name QIP_FILE Resolve_VDC2VICIV_2Port.qip
-set_global_assignment -name ALLOW_REGISTER_DUPLICATION ON
 set_global_assignment -name QIP_FILE ColourRam.qip
+set_global_assignment -name QIP_FILE altddio_out_sdram.qip
+set_global_assignment -name QIP_FILE audio_clock_60Mhz.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
