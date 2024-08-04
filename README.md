@@ -28,12 +28,18 @@ OpenROM alternative.
 
 The MEGA65 project maintains an automated build server at https://builder.mega65.org/
 
-You will optionally need the a C65 ROM file, if you wish to use BASIC 10:
+You will optionally need the a C65 ROM file,
 
+Here you have the instructions on how to get the MEGA65 ROM even if you don't own a MEGA65:
+https://files.mega65.org/?ar=145591dd-deb6-4bd0-aa89-8e39cd021470
+
+If you wish to use BASIC 10:
 http://www.zimmers.net/anonftp/pub/cbm/firmware/computers/c65/911001.bin  
 renamed to MEGA65.ROM, is 128k in size
 
 If you do not have such a file, the MEGA65 contains the free and open-source
 OpenROM alternative.
+
+
 
 ------------
