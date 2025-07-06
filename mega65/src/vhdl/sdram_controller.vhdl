@@ -16,16 +16,16 @@ entity sdram_controller is
 
         identical_clocks : in std_logic;
 
-        -- Option to ignore 100usec initialisation sequence for SDRAM (to
+        -- Option to ignore 200usec initialisation sequence for SDRAM (to
         -- speed up simulation)
-        enforce_100us_delay : in boolean := true;
+        enforce_200us_delay : in boolean := true;
 
         -- Simple counter for number of requests received
         request_counter : out std_logic := '0';
 
         read_request  : in std_logic;
         write_request : in std_logic;
-        address       : in unsigned(26 downto 0);
+        address       : in unsigned(26 downto 0);  
         wdata         : in unsigned(7 downto 0);
 
         -- Optional 16-bit interface (for Amiga core use)
@@ -63,9 +63,9 @@ entity sdram_controller is
         viciv_data_out       : out unsigned(7 downto 0)  := x"00";
         viciv_data_strobe    : out std_logic             := '0';
 
-        -- SDRAM interface (e.g. AS4C16M16SA-6TCN, IS42S16400F, etc.)
-        sdram_a     : out   unsigned(12 downto 0);
-        sdram_ba    : out   unsigned(1 downto 0);
+        -- SDRAM interface (W9825G6KH-6: 256Mb = 16M x 16bit)
+        sdram_a     : out   unsigned(12 downto 0);  -- 13-bit address bus (same as IS42S16320F)
+        sdram_ba    : out   unsigned(1 downto 0);   -- 2-bit bank address
         sdram_dq    : inout unsigned(15 downto 0);
         sdram_cke   : out   std_logic := '1';
         sdram_cs_n  : out   std_logic := '0';
@@ -84,9 +84,9 @@ architecture tacoma_narrows of sdram_controller is
 
   -- XXX Don't configure SDRAM by default, while I debug why it sometimes
   -- powers up in wrong state.
-  signal sdram_prepped         : std_logic             := '1';
-  -- The SDRAM requires a 100us setup time
-  signal sdram_100us_countdown : integer               := 16_200;
+  signal sdram_prepped         : std_logic             := '0';
+  -- The SDRAM requires a 200us setup time
+  signal sdram_200us_countdown : integer               := 32_400;
   signal sdram_do_init         : std_logic             := '1';
   signal sdram_init_phase      : integer range 0 to 63 := 0;
 
@@ -106,7 +106,13 @@ architecture tacoma_narrows of sdram_controller is
   signal init_cmds : sdram_init_t := (
     2      => CMD_PRECHARGE,
     6      => CMD_AUTO_REFRESH,
-    16     => CMD_AUTO_REFRESH,
+    9      => CMD_AUTO_REFRESH,
+    12     => CMD_AUTO_REFRESH,
+    15     => CMD_AUTO_REFRESH,
+    18     => CMD_AUTO_REFRESH,
+    21     => CMD_AUTO_REFRESH,
+    24     => CMD_AUTO_REFRESH,
+    27     => CMD_AUTO_REFRESH,
     30     => CMD_SET_MODE_REG,
     others => CMD_NOP);
 
@@ -121,9 +127,9 @@ architecture tacoma_narrows of sdram_controller is
                          ACTIVATE_WAIT_1,
                          ACTIVATE_WAIT_2,
                          READ_WAIT,
-                         READ_WAIT_2,
+--                         READ_WAIT_2,
                          READ_WAIT_3,
-                         READ_WAIT_4,
+--                         READ_WAIT_4,
                          READ_0,
                          READ_1,
                          READ_2,
@@ -178,18 +184,18 @@ architecture tacoma_narrows of sdram_controller is
   signal cache_line_next_address             : unsigned(26 downto 3);
   signal silent_read                         : std_logic := '0';
 
-  -- 8K refreshes required every 64ms.
-  -- ie one every 7.812 usec
+  -- W9825G6KH-6 has 4K refresh cycles every 64ms (compared to 8K for IS42S16320F)
+  -- ie one every 15.625 usec  
   -- We have 162 clock cycles per usec, so one refresh every
-  -- 1,265 cycles is required.
-  constant refresh_interval    : integer   := 1265;
+  -- 2,531 cycles is required. (CHANGED from 1,265)
+  constant refresh_interval    : integer   := 2531;  -- CHANGED: Doubled interval for W9825G6KH-6
   signal refresh_due           : std_logic := '0';
   signal refresh_due_countdown : integer   := refresh_interval - 1;
 
   signal read_complete_strobe : std_logic              := '0';
   signal read_publish_strobe  : std_logic              := '0';
   signal active_row           : std_logic              := '0';
-  signal active_row_addr      : unsigned(25 downto 11) := (others => '0');
+  signal active_row_addr      : unsigned(24 downto 10) := (others => '0');  -- CHANGED: Adjusted for W9825G6KH-6 row addressing
 
   signal resets : unsigned(7 downto 0) := x"00";
 
@@ -320,7 +326,7 @@ begin
       end case;
 
       case latched_addr(7 downto 0) is
-        -- "SDRAM" at $C000000
+        -- "SDRAM" at $C000000 (but with reduced address space)
         when x"00" =>
           nonram_val <= x"53";
         when x"01" =>
@@ -430,17 +436,17 @@ begin
         prev_current_cache_line_next_toggle <= next_toggle_drive;
       end if;
 
-      -- Manage the 100usec SDRAM initialisation delay, if enabled
-      if sdram_100us_countdown /= 0 then
-        sdram_100us_countdown <= sdram_100us_countdown - 1;
+      -- Manage the 200usec SDRAM initialisation delay, if enabled
+      if sdram_200us_countdown /= 0 then
+        sdram_200us_countdown <= sdram_200us_countdown - 1;
       end if;
-      if sdram_100us_countdown = 1 then
-        report "SDRAM: Starting init sequence after 100usec delay";
+      if sdram_200us_countdown = 1 then
+        report "SDRAM: Starting init sequence after 200usec delay";
         sdram_do_init <= not sdram_prepped;
       end if;
-      if enforce_100us_delay = false then
+      if enforce_200us_delay = false then
         if sdram_prepped = '0' then
-          report "SDRAM: Skipping 100usec init delay";
+          report "SDRAM: Skipping 200usec init delay";
         end if;
         sdram_do_init <= not sdram_prepped;
       end if;
@@ -463,15 +469,12 @@ begin
         sdram_a(9)            <= '1';
         -- Normal mode of operation
         sdram_a(8 downto 7)   <= (others => '0');
-        -- CAS latency = 3, for 167MHz operation (what we do)
+        -- CAS latency = 3, for 167MHz operation (W9825G6KH-6 supports 166MHz)
         sdram_a(6 downto 4)   <= to_unsigned(3, 3);
         -- Non-interleaved burst order
         sdram_a(3)            <= '0';
         -- Read burst length = 4 x 16 bit words = 8 bytes
         sdram_a(2 downto 0)   <= to_unsigned(2, 3);
-        -- XXX DEBUG: read 8 x words so that we can check if missing bits is
-        -- due to first word of burst or not.
---        sdram_a(2 downto 0)   <= to_unsigned(3, 3);
 
         -- Emit the sequence of commands
         -- MUST BE DONE AFTER SETTING sdram_a
@@ -537,16 +540,16 @@ begin
                     & " = %" & to_string(std_logic_vector(latched_addr));
                   -- If no active row, then activate one
                   sdram_emit_command(CMD_ACTIVATE_ROW);
-                  sdram_ba    <= latched_addr(25 downto 24);
-                  sdram_a     <= latched_addr(23 downto 11);
+                  sdram_ba    <= latched_addr(24 downto 23);  -- CHANGED: Bank address bits for W9825G6KH-6
+                  sdram_a     <= latched_addr(22 downto 10);  -- CHANGED: Row address bits for W9825G6KH-6  
                   sdram_state <= ACTIVATE_WAIT;
-                elsif latched_addr(25 downto 11) /= active_row_addr(25 downto 11) then
+                elsif latched_addr(24 downto 10) /= active_row_addr(24 downto 10) then  -- CHANGED: Row comparison bits
                   report "ACTIVATEROW: Closing old row before opening new one required for read or write";
                   -- Different row activated
                   -- Precharge row, then activate the correct row
                   sdram_emit_command(CMD_PRECHARGE);
-                  sdram_ba    <= latched_addr(25 downto 24);
-                  sdram_a     <= latched_addr(23 downto 11);
+                  sdram_ba    <= latched_addr(24 downto 23);  -- CHANGED: Bank address bits
+                  sdram_a     <= latched_addr(22 downto 10);  -- CHANGED: Row address bits
                   sdram_state <= CLOSE_AND_SWITCH_ROW;
                 else
                   -- Correct row already activated
@@ -560,7 +563,7 @@ begin
                     sdram_a(12)         <= '0';
                     sdram_a(11)         <= '0';
                     sdram_a(10)         <= '0';  -- Disable auto precharge
-                    sdram_a(9 downto 2) <= latched_addr(10 downto 3);
+                    sdram_a(8 downto 2) <= latched_addr(9 downto 3);  -- MODIFIED: was (10 downto 3)
                     sdram_a(1 downto 0) <= "00";
                     sdram_state         <= READ_WAIT;
                     sdram_dqml          <= '0'; sdram_dqmh <= '0';
@@ -612,8 +615,8 @@ begin
           when CLOSE_AND_SWITCH_ROW_4 =>
             -- Now open the new row
             sdram_emit_command(CMD_ACTIVATE_ROW);
-            sdram_ba <= latched_addr(25 downto 24);
-            sdram_a  <= latched_addr(23 downto 11);
+            sdram_ba <= latched_addr(24 downto 23);
+            sdram_a  <= latched_addr(22 downto 10);  -- MODIFIED: was (23 downto 11)
           when ACTIVATE_WAIT =>
             sdram_emit_command(CMD_NOP);
           when ACTIVATE_WAIT_1 =>
@@ -630,7 +633,7 @@ begin
           when ACTIVATE_WAIT_2 =>
             sdram_emit_command(CMD_NOP);
             active_row                    <= '1';
-            active_row_addr(25 downto 11) <= latched_addr(25 downto 11);
+            active_row_addr(24 downto 10) <= latched_addr(24 downto 10);  -- MODIFIED: was (25 downto 11)
             if read_latched = '1' then
               report "SDRAM: Issuing READ command after ROW_ACTIVATE";
               sdram_emit_command(CMD_READ);
@@ -640,7 +643,7 @@ begin
               sdram_a(12)         <= '0';
               sdram_a(11)         <= '0';
               sdram_a(10)         <= '0';  -- Disable auto precharge
-              sdram_a(9 downto 2) <= latched_addr(10 downto 3);
+              sdram_a(8 downto 2) <= latched_addr(9 downto 3);  -- MODIFIED: was (10 downto 3)
               sdram_a(1 downto 0) <= "00";
               sdram_state         <= READ_WAIT;
               sdram_dqml          <= '0'; sdram_dqmh <= '0';
@@ -656,18 +659,18 @@ begin
             read_jobs  <= read_jobs + 1;
             sdram_dqml <= '0'; sdram_dqmh <= '0';
             sdram_emit_command(CMD_NOP);
-          when READ_WAIT_2 =>
-            sdram_dqml <= '0'; sdram_dqmh <= '0';
-            sdram_emit_command(CMD_NOP);
+--          when READ_WAIT_2 =>
+--            sdram_dqml <= '0'; sdram_dqmh <= '0';
+--            sdram_emit_command(CMD_NOP);
           when READ_WAIT_3 =>
             if identical_clocks='1' then
               sdram_state <= READ_0;
             end if;
             sdram_dqml <= '0'; sdram_dqmh <= '0';
             sdram_emit_command(CMD_NOP);
-          when READ_WAIT_4 =>
-            sdram_dqml <= '0'; sdram_dqmh <= '0';
-            sdram_emit_command(CMD_NOP);
+--          when READ_WAIT_4 =>
+--            sdram_dqml <= '0'; sdram_dqmh <= '0';
+--            sdram_emit_command(CMD_NOP);
           when READ_0 =>
             sdram_dqml <= '0'; sdram_dqmh <= '0';
             sdram_emit_command(CMD_NOP);
@@ -698,8 +701,8 @@ begin
             sdram_a(12)         <= '0';
             sdram_a(11)         <= '0';
             sdram_a(10)         <= '0';  -- Disable auto precharge
-            sdram_a(9 downto 0) <= latched_addr(10 downto 1);
-
+            sdram_a(8 downto 0) <= latched_addr(9 downto 1);  -- MODIFIED: was (10 downto 1)
+				
             sdram_dq_out(7 downto 0)  <= wdata_latched;
             sdram_dq_out(15 downto 8) <= wdata_hi_latched;
             sdram_dq_oe_n             <= (others => '0');
@@ -739,10 +742,9 @@ begin
             sdram_state <= IDLE;
           when others =>
             sdram_emit_command(CMD_NOP);
-        end case;
+        end case;					
       end if;
-
-    end if;
+	end if;
   end process;
-
 end tacoma_narrows;
+					

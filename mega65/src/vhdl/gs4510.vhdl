@@ -288,8 +288,8 @@ end entity gs4510;
 
 architecture Behavioural of gs4510 is
 
-  signal sdram_t_or_hyperram_f_int : std_logic := '0';
-  signal sdram_slow_clock_int : std_logic := '0';
+  signal sdram_t_or_hyperram_f_int : std_logic := '1';  -- change by default 
+  signal sdram_slow_clock_int : std_logic := '0';   -- change by default
   
   signal f_rdata : std_logic := '1';
   signal f_rdata_last : std_logic := '1';
@@ -564,7 +564,7 @@ architecture Behavioural of gs4510 is
   signal slow_access_data_ready : std_logic := '0';
 
   signal slow_prefetch_enable : std_logic := '0';
-  signal slow_cache_enable : std_logic := '1';
+  signal slow_cache_enable : std_logic := '0';
   signal slow_cache_advance_enable : std_logic := '0';
   signal prev_cache_read : unsigned(2 downto 0) := "000";
   signal slowram_cache_line_inc_toggle_int : std_logic := '0';
